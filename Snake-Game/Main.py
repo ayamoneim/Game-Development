@@ -1,7 +1,6 @@
 import pygame
-
-
 import random
+import time
 # Definitions  for the Game
 white = (255, 255, 255)
 red = (255, 20, 20)
@@ -19,6 +18,8 @@ screen_height = 600 + 40
 start_menu = ['Start Game', 'Quit']
 end_menu = ['Start Again!', 'Give Up']
 delta = 10
+
+
 pygame.init()
 
 frames_per_sec = 18
@@ -78,8 +79,9 @@ def draw_snake(snake_movements, snake_parts_needed):
         index += 1
 
 def game():
-    current_x = screen_width / 2
-    current_y = screen_height / 2
+    visited = 0
+    current_x = 400
+    current_y = 400
     delta_x = delta
     delta_y = 0
     menu_pointer = 0
@@ -174,21 +176,28 @@ def game():
                 game_phase = 3
 
             else:
+
+                if (abs(apple_x - current_x) * abs(apple_x - current_x)) + (abs(apple_y - current_y)\
+                                                                                * abs(apple_y - current_y)) <= 25 * 25:
+                    visited += 1
+                    if visited == 4:
+                        visited = 0
+                        score += 1
+                        pygame.mixer.music.load('bite.mp3')
+                        pygame.mixer.music.play(0)
+                        apple_x = int(random.randrange(30, 800) / 10.0) * 10
+                        apple_y = int(random.randrange(30, 500) / 10.0) * 10
+                        snake_length += 1
+                    else:
+                        game_display.blit(apple, (apple_x, apple_y))
+
+                else:
+                    game_display.blit(apple, (apple_x, apple_y))
+
                 current_x += delta_x
                 current_y += delta_y
                 snake_movements.append([current_x, current_y])
                 draw_snake(snake_movements, snake_length)
-
-                if [apple_x, apple_y] in snake_movements[len(snake_movements) - snake_length:len(snake_movements)]:
-                    score += 1
-                    pygame.mixer.music.load('bite.mp3')
-                    pygame.mixer.music.play(0)
-                    while [apple_x, apple_y] in snake_movements[len(snake_movements) - snake_length:len(snake_movements)]:
-                        apple_x = round(random.randrange(30, 800) / 10.0) * 10
-                        apple_y = round(random.randrange(30, 500) / 10.0) * 10
-                    snake_length += 1
-                else:
-                    game_display.blit(apple, (apple_x, apple_y))
 
         elif game_phase == 3:
             pygame.mixer.stop()
